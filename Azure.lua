@@ -93,44 +93,96 @@ function Azure:CreateWindow(config)
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
         Parent = AzureUI,
-        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(25, 25, 35) or Color3.fromRGB(240, 240, 245),
-        BorderSizePixel = 0,
-        Position = UDim2.new(0.5, -WindowSize.X.Offset/2, 0.5, -WindowSize.Y.Offset/2),
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(240, 240, 245),
+        Position = config.Position or UDim2.new(0.5, -WindowSize.X.Offset/2, 0.5, -WindowSize.Y.Offset/2),
         Size = WindowSize,
         ClipsDescendants = true
     })
 
-    -- Add Gradient to MainFrame
-    local MainGradient = Create("UIGradient", {
+    -- Add Corner to Main Frame
+    local MainCorner = Create("UICorner", {
         Parent = MainFrame,
-        Color = Theme == "Dark" and 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 35))
-            }) or 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 250, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(240, 240, 245))
-            }),
-        Rotation = 45
-    })
-    
-    -- Add Shadow with better depth
-    local Shadow = Create("ImageLabel", {
-        Name = "Shadow",
-        Parent = MainFrame,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, -15, 0, -15),
-        Size = UDim2.new(1, 30, 1, 30),
-        ZIndex = 0,
-        Image = "rbxassetid://6015897843",
-        ImageColor3 = Color3.new(0, 0, 0),
-        ImageTransparency = 0.6,
-        ScaleType = Enum.ScaleType.Slice,
-        SliceCenter = Rect.new(49, 49, 450, 450)
+        CornerRadius = UDim.new(0, 8)
     })
 
-    -- Add Accent Bar
+    -- Create Title Bar
+    local TitleBar = Create("Frame", {
+        Name = "TitleBar",
+        Parent = MainFrame,
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(25, 25, 35) or Color3.fromRGB(235, 235, 240),
+        Size = UDim2.new(1, 0, 0, 35)
+    })
+
+    -- Add Title Text
+    local TitleText = Create("TextLabel", {
+        Name = "Title",
+        Parent = TitleBar,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 45, 0, 0),
+        Size = UDim2.new(1, -45, 1, 0),
+        Font = Enum.Font.GothamBold,
+        Text = WindowTitle,
+        TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
+
+    -- Create Tab Container
+    local TabContainer = Create("Frame", {
+        Name = "TabContainer",
+        Parent = MainFrame,
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(230, 230, 235),
+        Position = UDim2.new(0, 10, 0, 45),
+        Size = UDim2.new(0, 150, 1, -55),
+        ClipsDescendants = true
+    })
+
+    -- Add Corner to Tab Container
+    local TabContainerCorner = Create("UICorner", {
+        Parent = TabContainer,
+        CornerRadius = UDim.new(0, 6)
+    })
+
+    -- Add Layout for Tab Container
+    local TabContainerLayout = Create("UIListLayout", {
+        Parent = TabContainer,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        Padding = UDim.new(0, 5),
+        SortOrder = Enum.SortOrder.LayoutOrder
+    })
+
+    -- Add Padding for Tab Container
+    local TabContainerPadding = Create("UIPadding", {
+        Parent = TabContainer,
+        PaddingTop = UDim.new(0, 5)
+    })
+
+    -- Create Content Container
+    local ContentContainer = Create("Frame", {
+        Name = "ContentContainer",
+        Parent = MainFrame,
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(230, 230, 235),
+        Position = UDim2.new(0, 170, 0, 45),
+        Size = UDim2.new(1, -180, 1, -55),
+        ClipsDescendants = true
+    })
+
+    -- Add Corner to Content Container
+    local ContentContainerCorner = Create("UICorner", {
+        Parent = ContentContainer,
+        CornerRadius = UDim.new(0, 6)
+    })
+
+    -- Add Padding for Content Container
+    local ContentContainerPadding = Create("UIPadding", {
+        Parent = ContentContainer,
+        PaddingLeft = UDim.new(0, 10),
+        PaddingRight = UDim.new(0, 10),
+        PaddingTop = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 10)
+    })
+
+    -- Create Accent Bar
     local AccentBar = Create("Frame", {
         Name = "AccentBar",
         Parent = MainFrame,
@@ -155,28 +207,34 @@ function Azure:CreateWindow(config)
         })
     })
 
-    -- Create Title Bar with better styling
-    local TitleBar = Create("Frame", {
-        Name = "TitleBar",
+    -- Add Shadow with better depth
+    local Shadow = Create("ImageLabel", {
+        Name = "Shadow",
         Parent = MainFrame,
-        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 40)
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, -15, 0, -15),
+        Size = UDim2.new(1, 30, 1, 30),
+        ZIndex = 0,
+        Image = "rbxassetid://6015897843",
+        ImageColor3 = Color3.new(0, 0, 0),
+        ImageTransparency = 0.6,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450)
     })
 
-    -- Add Title Bar Gradient
-    local TitleGradient = Create("UIGradient", {
-        Parent = TitleBar,
+    -- Add Gradient to MainFrame
+    local MainGradient = Create("UIGradient", {
+        Parent = MainFrame,
         Color = Theme == "Dark" and 
             ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 55)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
             }) or 
             ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 235, 240)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 250, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(240, 240, 245))
             }),
-        Rotation = 90
+        Rotation = 45
     })
 
     -- Add Logo/Icon
@@ -188,80 +246,6 @@ function Azure:CreateWindow(config)
         Size = UDim2.new(0, 24, 0, 24),
         Image = "rbxassetid://6031251532",
         ImageColor3 = Theme == "Dark" and Color3.fromRGB(60, 120, 255) or Color3.fromRGB(40, 100, 235)
-    })
-
-    -- Add Title with better font and position
-    local Title = Create("TextLabel", {
-        Name = "Title",
-        Parent = TitleBar,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 45, 0, 0),
-        Size = UDim2.new(1, -55, 1, 0),
-        Font = Enum.Font.GothamBold,
-        Text = WindowTitle,
-        TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-        TextSize = 16,
-        TextXAlignment = Enum.TextXAlignment.Left
-    })
-
-    -- Create Tab Container with better styling
-    local TabContainer = Create("Frame", {
-        Name = "TabContainer",
-        Parent = MainFrame,
-        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(235, 235, 240),
-        BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, 40),
-        Size = UDim2.new(0, 150, 1, -40),
-        ClipsDescendants = true
-    })
-
-    -- Add Tab Container Gradient
-    local TabContainerGradient = Create("UIGradient", {
-        Parent = TabContainer,
-        Color = Theme == "Dark" and 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
-            }) or 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 240, 245)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(235, 235, 240))
-            }),
-        Rotation = 90
-    })
-
-    -- Add Tab Container Layout
-    local TabLayout = Create("UIListLayout", {
-        Parent = TabContainer,
-        Padding = UDim.new(0, 5),
-        HorizontalAlignment = Enum.HorizontalAlignment.Center,
-        SortOrder = Enum.SortOrder.LayoutOrder
-    })
-
-    -- Add Tab Container Padding
-    local TabContainerPadding = Create("UIPadding", {
-        Parent = TabContainer,
-        PaddingTop = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10)
-    })
-
-    -- Create Content Container with adjusted position
-    local ContentContainer = Create("Frame", {
-        Name = "ContentContainer",
-        Parent = MainFrame,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 150, 0, 40),
-        Size = UDim2.new(1, -150, 1, -40),
-        ClipsDescendants = true
-    })
-
-    -- Add Padding to Content Container
-    local ContentPadding = Create("UIPadding", {
-        Parent = ContentContainer,
-        PaddingTop = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10),
-        PaddingLeft = UDim.new(0, 15),
-        PaddingRight = UDim.new(0, 15)
     })
 
     local Window = {}
@@ -300,6 +284,7 @@ function Azure:CreateWindow(config)
             Name = name.."Content",
             Parent = ContentContainer,
             BackgroundTransparency = 1,
+            Position = UDim2.new(0, 0, 0, 0),
             Size = UDim2.new(1, 0, 1, 0),
             ScrollBarThickness = 3,
             ScrollBarImageColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
@@ -307,14 +292,25 @@ function Azure:CreateWindow(config)
             VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
             Visible = false,
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
-            CanvasSize = UDim2.new(0, 0, 0, 0)
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            BorderSizePixel = 0
         })
 
         -- Add Layout for Tab Content
         local TabContentLayout = Create("UIListLayout", {
             Parent = TabContent,
             Padding = UDim.new(0, 10),
-            SortOrder = Enum.SortOrder.LayoutOrder
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center
+        })
+
+        -- Add Padding for Tab Content
+        local TabContentPadding = Create("UIPadding", {
+            Parent = TabContent,
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10)
         })
 
         -- Tab Selection Logic
