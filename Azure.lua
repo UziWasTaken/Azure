@@ -788,6 +788,110 @@ function Azure:CreateWindow(config)
         return Tab
     end
     
+    -- Add Button Creation Function
+    function Window:CreateButton(buttonConfig)
+        local buttonContainer = Create("Frame", {
+            Name = buttonConfig.Title.."Button",
+            Parent = ContentContainer,
+            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
+            Size = UDim2.new(1, 0, 0, 40),
+            LayoutOrder = #ContentContainer:GetChildren(),
+            ClipsDescendants = true
+        })
+        
+        -- Add Container Corner
+        local ContainerCorner = Create("UICorner", {
+            Parent = buttonContainer,
+            CornerRadius = UDim.new(0, 6)
+        })
+        
+        -- Add Container Gradient
+        local ContainerGradient = Create("UIGradient", {
+            Parent = buttonContainer,
+            Color = Theme == "Dark" and 
+                ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
+                }) or 
+                ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
+                }),
+            Rotation = 90
+        })
+        
+        -- Create Button
+        local Button = Create("TextButton", {
+            Name = "Button",
+            Parent = buttonContainer,
+            BackgroundColor3 = Color3.fromRGB(60, 120, 255),
+            Size = UDim2.new(1, -20, 1, -10),
+            Position = UDim2.new(0, 10, 0, 5),
+            Font = Enum.Font.GothamSemibold,
+            Text = buttonConfig.Title,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextSize = 14,
+            AutoButtonColor = false
+        })
+        
+        -- Add Button Corner
+        local ButtonCorner = Create("UICorner", {
+            Parent = Button,
+            CornerRadius = UDim.new(0, 4)
+        })
+        
+        -- Add Button Gradient
+        local ButtonGradient = Create("UIGradient", {
+            Parent = Button,
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 110, 245))
+            }),
+            Rotation = 90
+        })
+        
+        -- Add Click Effect
+        Button.MouseButton1Down:Connect(function(X, Y)
+            -- Ripple Effect
+            local Ripple = Create("Frame", {
+                Parent = Button,
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 0.7,
+                Position = UDim2.new(0, X - Button.AbsolutePosition.X, 0, Y - Button.AbsolutePosition.Y),
+                Size = UDim2.new(0, 0, 0, 0),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+            })
+            
+            local RippleCorner = Create("UICorner", {
+                Parent = Ripple,
+                CornerRadius = UDim.new(1, 0)
+            })
+            
+            local Size = math.max(Button.AbsoluteSize.X, Button.AbsoluteSize.Y) * 2
+            local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
+            Tween:Play()
+            Tween.Completed:Connect(function()
+                Ripple:Destroy()
+            end)
+            
+            -- Callback
+            if buttonConfig.Callback then
+                buttonConfig.Callback()
+            end
+        end)
+        
+        -- Add Hover Effect
+        Button.MouseEnter:Connect(function()
+            Tween(Button, {BackgroundColor3 = Color3.fromRGB(70, 130, 255)}, 0.2)
+        end)
+        
+        Button.MouseLeave:Connect(function()
+            Tween(Button, {BackgroundColor3 = Color3.fromRGB(60, 120, 255)}, 0.2)
+        end)
+        
+        return buttonContainer
+    end
+    
     -- Make Window Draggable
     local dragging
     local dragInput
