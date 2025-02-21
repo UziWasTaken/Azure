@@ -47,52 +47,99 @@ function Azure:CreateWindow(config)
         ClipsDescendants = true
     })
     
-    -- Add Corner
-    local Corner = Create("UICorner", {
+    -- Add Shadow
+    local Shadow = Create("ImageLabel", {
+        Name = "Shadow",
         Parent = MainFrame,
-        CornerRadius = UDim.new(0, 8)
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, -15, 0, -15),
+        Size = UDim2.new(1, 30, 1, 30),
+        ZIndex = 0,
+        Image = "rbxassetid://6015897843",
+        ImageColor3 = Color3.new(0, 0, 0),
+        ImageTransparency = 0.5,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450)
     })
     
-    -- Create Title Bar
+    -- Add Corner with smaller radius
+    local Corner = Create("UICorner", {
+        Parent = MainFrame,
+        CornerRadius = UDim.new(0, 6)
+    })
+    
+    -- Create Title Bar with gradient
     local TitleBar = Create("Frame", {
         Name = "TitleBar",
         Parent = MainFrame,
-        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(230, 230, 235),
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
         BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 0, 30)
+        Size = UDim2.new(1, 0, 0, 40)
     })
     
-    -- Add Title
+    -- Add Title Bar Corner
+    local TitleBarCorner = Create("UICorner", {
+        Parent = TitleBar,
+        CornerRadius = UDim.new(0, 6)
+    })
+    
+    -- Add Title with better positioning and font
     local Title = Create("TextLabel", {
         Name = "Title",
         Parent = TitleBar,
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 10, 0, 0),
-        Size = UDim2.new(1, -20, 1, 0),
+        Position = UDim2.new(0, 15, 0, 0),
+        Size = UDim2.new(1, -30, 1, 0),
         Font = Enum.Font.GothamBold,
         Text = WindowTitle,
         TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-        TextSize = 14,
+        TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left
     })
     
-    -- Create Tab Container
+    -- Create Tab Container with better contrast
     local TabContainer = Create("Frame", {
         Name = "TabContainer",
         Parent = MainFrame,
-        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(20, 20, 30) or Color3.fromRGB(245, 245, 250),
+        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(235, 235, 240),
         BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, 30),
-        Size = UDim2.new(0, 120, 1, -30)
+        Position = UDim2.new(0, 0, 0, 40),
+        Size = UDim2.new(0, 150, 1, -40),
+        ClipsDescendants = true
     })
     
-    -- Create Content Container
+    -- Add Tab Container Corner
+    local TabContainerCorner = Create("UICorner", {
+        Parent = TabContainer,
+        CornerRadius = UDim.new(0, 6)
+    })
+    
+    -- Add Padding to Tab Container
+    local TabContainerPadding = Create("UIPadding", {
+        Parent = TabContainer,
+        PaddingTop = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 10),
+        PaddingLeft = UDim.new(0, 10),
+        PaddingRight = UDim.new(0, 10)
+    })
+    
+    -- Create Content Container with adjusted position
     local ContentContainer = Create("Frame", {
         Name = "ContentContainer",
         Parent = MainFrame,
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 120, 0, 30),
-        Size = UDim2.new(1, -120, 1, -30)
+        Position = UDim2.new(0, 150, 0, 40),
+        Size = UDim2.new(1, -150, 1, -40),
+        ClipsDescendants = true
+    })
+    
+    -- Add Padding to Content Container
+    local ContentPadding = Create("UIPadding", {
+        Parent = ContentContainer,
+        PaddingTop = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 10),
+        PaddingLeft = UDim.new(0, 15),
+        PaddingRight = UDim.new(0, 15)
     })
     
     local Window = {}
@@ -105,13 +152,37 @@ function Azure:CreateWindow(config)
         local TabButton = Create("TextButton", {
             Name = name.."Tab",
             Parent = TabContainer,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 30),
-            Font = Enum.Font.Gotham,
+            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225),
+            Size = UDim2.new(1, 0, 0, 35),
+            Font = Enum.Font.GothamSemibold,
             Text = name,
-            TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-            TextSize = 14
+            TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60),
+            TextSize = 14,
+            AutoButtonColor = false
         })
+        
+        -- Add Corner to Tab Button
+        local TabButtonCorner = Create("UICorner", {
+            Parent = TabButton,
+            CornerRadius = UDim.new(0, 4)
+        })
+        
+        -- Add Hover Effect
+        TabButton.MouseEnter:Connect(function()
+            Tween(TabButton, {
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(210, 210, 215),
+                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+            }, 0.2)
+        end)
+        
+        TabButton.MouseLeave:Connect(function()
+            if not TabButton.Selected then
+                Tween(TabButton, {
+                    BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225),
+                    TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60)
+                }, 0.2)
+            end
+        end)
         
         -- Create Tab Content
         local TabContent = Create("ScrollingFrame", {
@@ -119,35 +190,85 @@ function Azure:CreateWindow(config)
             Parent = ContentContainer,
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
-            ScrollBarThickness = 4,
-            Visible = false
+            ScrollBarThickness = 3,
+            ScrollBarImageColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
+            ScrollBarImageTransparency = 0.7,
+            VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
+            Visible = false,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            CanvasSize = UDim2.new(0, 0, 0, 0)
+        })
+        
+        -- Add Layout for Tab Content
+        local TabContentLayout = Create("UIListLayout", {
+            Parent = TabContent,
+            Padding = UDim.new(0, 10),
+            SortOrder = Enum.SortOrder.LayoutOrder
         })
         
         -- Add Elements Creation Functions
         function Tab:CreateToggle(toggleConfig)
-            local toggle = Create("Frame", {
+            local toggleContainer = Create("Frame", {
                 Name = toggleConfig.Title.."Toggle",
                 Parent = TabContent,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(230, 230, 235),
-                Size = UDim2.new(1, -20, 0, 40),
-                Position = UDim2.new(0, 10, 0, #TabContent:GetChildren() * 45)
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
+                Size = UDim2.new(1, 0, 0, 40),
+                LayoutOrder = #TabContent:GetChildren()
             })
             
-            -- Add toggle functionality here
-            return toggle
+            -- Add Corner to Toggle Container
+            local ToggleCorner = Create("UICorner", {
+                Parent = toggleContainer,
+                CornerRadius = UDim.new(0, 4)
+            })
+            
+            -- Add Toggle Title
+            local ToggleTitle = Create("TextLabel", {
+                Name = "Title",
+                Parent = toggleContainer,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 15, 0, 0),
+                Size = UDim2.new(1, -55, 1, 0),
+                Font = Enum.Font.GothamMedium,
+                Text = toggleConfig.Title,
+                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left
+            })
+            
+            return toggleContainer
         end
         
         function Tab:CreateSlider(sliderConfig)
-            local slider = Create("Frame", {
+            local sliderContainer = Create("Frame", {
                 Name = sliderConfig.Title.."Slider",
                 Parent = TabContent,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(230, 230, 235),
-                Size = UDim2.new(1, -20, 0, 40),
-                Position = UDim2.new(0, 10, 0, #TabContent:GetChildren() * 45)
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
+                Size = UDim2.new(1, 0, 0, 50),
+                LayoutOrder = #TabContent:GetChildren()
             })
             
-            -- Add slider functionality here
-            return slider
+            -- Add Corner to Slider Container
+            local SliderCorner = Create("UICorner", {
+                Parent = sliderContainer,
+                CornerRadius = UDim.new(0, 4)
+            })
+            
+            -- Add Slider Title
+            local SliderTitle = Create("TextLabel", {
+                Name = "Title",
+                Parent = sliderContainer,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 15, 0, 5),
+                Size = UDim2.new(1, -30, 0, 20),
+                Font = Enum.Font.GothamMedium,
+                Text = sliderConfig.Title,
+                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left
+            })
+            
+            return sliderContainer
         end
         
         return Tab
