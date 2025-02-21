@@ -344,22 +344,176 @@ function Azure:CreateWindow(config)
             SortOrder = Enum.SortOrder.LayoutOrder
         })
         
-        -- Add Elements Creation Functions
+        -- Add Button Creation Function
+        function Tab:CreateButton(buttonConfig)
+            local buttonContainer = Create("Frame", {
+                Name = buttonConfig.Title.."Button",
+                Parent = TabContent,
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
+                Size = UDim2.new(1, 0, 0, 40),
+                LayoutOrder = #TabContent:GetChildren(),
+                ClipsDescendants = true
+            })
+            
+            -- Add Container Corner
+            local ContainerCorner = Create("UICorner", {
+                Parent = buttonContainer,
+                CornerRadius = UDim.new(0, 6)
+            })
+            
+            -- Add Container Gradient
+            local ContainerGradient = Create("UIGradient", {
+                Parent = buttonContainer,
+                Color = Theme == "Dark" and 
+                    ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
+                    }) or 
+                    ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
+                    }),
+                Rotation = 90
+            })
+            
+            -- Create Button
+            local Button = Create("TextButton", {
+                Name = "Button",
+                Parent = buttonContainer,
+                BackgroundColor3 = Color3.fromRGB(60, 120, 255),
+                Size = UDim2.new(1, -20, 1, -10),
+                Position = UDim2.new(0, 10, 0, 5),
+                Font = Enum.Font.GothamSemibold,
+                Text = buttonConfig.Title,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 14,
+                AutoButtonColor = false
+            })
+            
+            -- Add Button Corner
+            local ButtonCorner = Create("UICorner", {
+                Parent = Button,
+                CornerRadius = UDim.new(0, 4)
+            })
+            
+            -- Add Button Gradient
+            local ButtonGradient = Create("UIGradient", {
+                Parent = Button,
+                Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 110, 245))
+                }),
+                Rotation = 90
+            })
+            
+            -- Add Click Effect
+            Button.MouseButton1Down:Connect(function(X, Y)
+                -- Ripple Effect
+                local Ripple = Create("Frame", {
+                    Parent = Button,
+                    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                    BackgroundTransparency = 0.7,
+                    Position = UDim2.new(0, X - Button.AbsolutePosition.X, 0, Y - Button.AbsolutePosition.Y),
+                    Size = UDim2.new(0, 0, 0, 0),
+                    AnchorPoint = Vector2.new(0.5, 0.5),
+                })
+                
+                local RippleCorner = Create("UICorner", {
+                    Parent = Ripple,
+                    CornerRadius = UDim.new(1, 0)
+                })
+                
+                local Size = math.max(Button.AbsoluteSize.X, Button.AbsoluteSize.Y) * 2
+                local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
+                Tween:Play()
+                Tween.Completed:Connect(function()
+                    Ripple:Destroy()
+                end)
+                
+                -- Callback
+                if buttonConfig.Callback then
+                    buttonConfig.Callback()
+                end
+            end)
+            
+            -- Add Hover Effect
+            Button.MouseEnter:Connect(function()
+                Tween(Button, {BackgroundColor3 = Color3.fromRGB(70, 130, 255)}, 0.2)
+            end)
+            
+            Button.MouseLeave:Connect(function()
+                Tween(Button, {BackgroundColor3 = Color3.fromRGB(60, 120, 255)}, 0.2)
+            end)
+            
+            return buttonContainer
+        end
+        
         function Tab:CreateToggle(toggleConfig)
             local toggleContainer = Create("Frame", {
                 Name = toggleConfig.Title.."Toggle",
                 Parent = TabContent,
                 BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
                 Size = UDim2.new(1, 0, 0, 40),
-                LayoutOrder = #TabContent:GetChildren()
+                LayoutOrder = #TabContent:GetChildren(),
+                ClipsDescendants = true
             })
-            
+
+            -- Create Dropdown Container
+            local dropdownContainer = Create("Frame", {
+                Name = "DropdownContainer",
+                Parent = toggleContainer,
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(220, 220, 225),
+                Position = UDim2.new(0, 0, 1, 0),
+                Size = UDim2.new(1, 0, 0, 0),
+                ClipsDescendants = true
+            })
+
+            -- Add Dropdown Items if specified
+            local dropdownHeight = 0
+            if toggleConfig.Dropdown then
+                for _, item in ipairs(toggleConfig.Dropdown) do
+                    local dropdownItem = Create("TextButton", {
+                        Name = item.."Item",
+                        Parent = dropdownContainer,
+                        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(230, 230, 235),
+                        Size = UDim2.new(1, 0, 0, 30),
+                        Position = UDim2.new(0, 0, 0, dropdownHeight),
+                        Font = Enum.Font.GothamMedium,
+                        Text = item,
+                        TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
+                        TextSize = 14,
+                        AutoButtonColor = false
+                    })
+
+                    -- Add hover effect for dropdown items
+                    dropdownItem.MouseEnter:Connect(function()
+                        Tween(dropdownItem, {
+                            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(220, 220, 225)
+                        }, 0.2)
+                    end)
+
+                    dropdownItem.MouseLeave:Connect(function()
+                        Tween(dropdownItem, {
+                            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(230, 230, 235)
+                        }, 0.2)
+                    end)
+
+                    dropdownItem.MouseButton1Click:Connect(function()
+                        if toggleConfig.DropdownCallback then
+                            toggleConfig.DropdownCallback(item)
+                        end
+                    end)
+
+                    dropdownHeight = dropdownHeight + 30
+                end
+            end
+
             -- Add Container Corner
             local ContainerCorner = Create("UICorner", {
                 Parent = toggleContainer,
                 CornerRadius = UDim.new(0, 6)
             })
-            
+
             -- Add Container Gradient
             local ContainerGradient = Create("UIGradient", {
                 Parent = toggleContainer,
@@ -446,16 +600,29 @@ function Azure:CreateWindow(config)
             
             UpdateToggle()
             
+            -- Modify click behavior to show/hide dropdown
+            local dropdownOpen = false
             ToggleButton.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
                     Toggled = not Toggled
                     UpdateToggle()
+                    
+                    -- Toggle dropdown if it exists
+                    if toggleConfig.Dropdown then
+                        dropdownOpen = not dropdownOpen
+                        local newSize = dropdownOpen and UDim2.new(1, 0, 0, dropdownHeight) or UDim2.new(1, 0, 0, 0)
+                        local newContainerSize = dropdownOpen and UDim2.new(1, 0, 0, 40 + dropdownHeight) or UDim2.new(1, 0, 0, 40)
+                        
+                        Tween(dropdownContainer, {Size = newSize}, 0.2)
+                        Tween(toggleContainer, {Size = newContainerSize}, 0.2)
+                    end
+                    
                     if toggleConfig.Callback then
                         toggleConfig.Callback(Toggled)
                     end
                 end
             end)
-            
+
             return toggleContainer
         end
         
