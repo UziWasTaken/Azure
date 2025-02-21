@@ -328,6 +328,9 @@ function Azure:CreateWindow(config)
         return Tab
     end
     
+    -- Add CreateTab as an alias for AddTab
+    Window.CreateTab = Window.AddTab
+    
     function Window:SelectTab(index)
         if Tabs[index] then
             Tabs[index].Button.MouseButton1Click:Fire()
