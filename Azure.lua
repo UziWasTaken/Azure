@@ -270,7 +270,7 @@ function Azure:CreateWindow(config)
     function Window:CreateTab(name)
         local Tab = {}
         
-        -- Create Tab Button with better styling
+        -- Create Tab Button
         local TabButton = Create("TextButton", {
             Name = name.."Tab",
             Parent = TabContainer,
@@ -282,6 +282,17 @@ function Azure:CreateWindow(config)
             TextSize = 14,
             AutoButtonColor = false,
             ClipsDescendants = true
+        })
+
+        -- Add Icon to Tab Button
+        local TabIcon = Create("ImageLabel", {
+            Name = "Icon",
+            Parent = TabButton,
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 10, 0.5, -8),
+            Size = UDim2.new(0, 16, 0, 16),
+            Image = "rbxassetid://6031079158",
+            ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
         })
 
         -- Create Tab Content
@@ -305,6 +316,67 @@ function Azure:CreateWindow(config)
             Padding = UDim.new(0, 10),
             SortOrder = Enum.SortOrder.LayoutOrder
         })
+
+        -- Tab Selection Logic
+        local function SelectTab()
+            -- Hide all tab contents
+            for _, child in ipairs(ContentContainer:GetChildren()) do
+                if child:IsA("ScrollingFrame") then
+                    child.Visible = false
+                end
+            end
+            
+            -- Reset all tab button colors
+            for _, child in ipairs(TabContainer:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child.BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225)
+                    child.TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60)
+                    if child:FindFirstChild("Icon") then
+                        child.Icon.ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
+                    end
+                end
+            end
+            
+            -- Show selected tab content and highlight button
+            TabContent.Visible = true
+            TabButton.BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(230, 230, 235)
+            TabButton.TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+            TabIcon.ImageColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+        end
+
+        -- Add Click Handler for Tab Button
+        TabButton.MouseButton1Click:Connect(function()
+            SelectTab()
+        end)
+
+        -- Add Ripple Effect
+        TabButton.MouseButton1Down:Connect(function(X, Y)
+            local Ripple = Create("Frame", {
+                Parent = TabButton,
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(0, 0, 0),
+                BackgroundTransparency = 0.7,
+                Position = UDim2.new(0, X - TabButton.AbsolutePosition.X, 0, Y - TabButton.AbsolutePosition.Y),
+                Size = UDim2.new(0, 0, 0, 0),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+            })
+
+            local RippleCorner = Create("UICorner", {
+                Parent = Ripple,
+                CornerRadius = UDim.new(1, 0)
+            })
+
+            local Size = math.max(TabButton.AbsoluteSize.X, TabButton.AbsoluteSize.Y) * 2
+            local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
+            Tween:Play()
+            Tween.Completed:Connect(function()
+                Ripple:Destroy()
+            end)
+        end)
+
+        -- Select first tab by default
+        if #TabContainer:GetChildren() == 1 then
+            SelectTab()
+        end
 
         -- Add CreateButton Function to Tab
         function Tab:CreateButton(buttonConfig)
