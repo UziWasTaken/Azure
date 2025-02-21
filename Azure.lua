@@ -1,5 +1,58 @@
--- Azure UI Library
--- Created by Cascade
+--[[
+    Azure UI Library
+    Version: 1.0.0
+    Created by Cascade
+    
+    A modern, clean UI library for Roblox with smooth animations and a beautiful design.
+    
+    Features:
+    - Modern and clean design
+    - Dark and Light themes
+    - Smooth animations and transitions
+    - Automatic layout management
+    - Responsive design
+    
+    Main Components:
+    - Windows: Main container for your UI
+    - Tabs: Organize content into different sections
+    - Toggles: Boolean input controls
+    - Sliders: Numeric input controls
+    
+    Example Usage:
+    ```lua
+    local Azure = require(game:GetService("ReplicatedStorage").Azure)
+    
+    -- Create a new window
+    local Window = Azure:CreateWindow({
+        Title = "My Window",
+        Theme = "Dark", -- or "Light"
+        Size = UDim2.fromOffset(600, 400)
+    })
+    
+    -- Create a tab
+    local Tab = Window:CreateTab("Settings")
+    
+    -- Add a toggle
+    Tab:CreateToggle({
+        Title = "Enable Feature",
+        Default = false,
+        Callback = function(Value)
+            print("Toggle value:", Value)
+        end
+    })
+    
+    -- Add a slider
+    Tab:CreateSlider({
+        Title = "Speed",
+        Min = 0,
+        Max = 100,
+        Default = 50,
+        Callback = function(Value)
+            print("Slider value:", Value)
+        end
+    })
+    ```
+]]
 
 local Azure = {}
 local TweenService = game:GetService("TweenService")
