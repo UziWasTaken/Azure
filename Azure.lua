@@ -277,50 +277,12 @@ function Azure:CreateWindow(config)
             BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225),
             Size = UDim2.new(0.9, 0, 0, 35),
             Font = Enum.Font.GothamSemibold,
-            Text = name,
+            Text = "    " .. name,
             TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60),
             TextSize = 14,
             AutoButtonColor = false,
             ClipsDescendants = true
         })
-
-        -- Add Icon to Tab Button
-        local TabIcon = Create("ImageLabel", {
-            Name = "Icon",
-            Parent = TabButton,
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 10, 0.5, -8),
-            Size = UDim2.new(0, 16, 0, 16),
-            Image = "rbxassetid://6031079158",
-            ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
-        })
-
-        -- Adjust Tab Button Text Position
-        TabButton.Text = "    " .. name  -- Add padding for icon
-
-        -- Add Ripple Effect
-        TabButton.MouseButton1Down:Connect(function(X, Y)
-            local Ripple = Create("Frame", {
-                Parent = TabButton,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(0, 0, 0),
-                BackgroundTransparency = 0.7,
-                Position = UDim2.new(0, X - TabButton.AbsolutePosition.X, 0, Y - TabButton.AbsolutePosition.Y),
-                Size = UDim2.new(0, 0, 0, 0),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-            })
-
-            local RippleCorner = Create("UICorner", {
-                Parent = Ripple,
-                CornerRadius = UDim.new(1, 0)
-            })
-
-            local Size = math.max(TabButton.AbsoluteSize.X, TabButton.AbsoluteSize.Y) * 2
-            local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
-            Tween:Play()
-            Tween.Completed:Connect(function()
-                Ripple:Destroy()
-            end)
-        end)
 
         -- Create Tab Content
         local TabContent = Create("ScrollingFrame", {
@@ -336,15 +298,15 @@ function Azure:CreateWindow(config)
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
             CanvasSize = UDim2.new(0, 0, 0, 0)
         })
-        
+
         -- Add Layout for Tab Content
         local TabContentLayout = Create("UIListLayout", {
             Parent = TabContent,
             Padding = UDim.new(0, 10),
             SortOrder = Enum.SortOrder.LayoutOrder
         })
-        
-        -- Add Button Creation Function
+
+        -- Add CreateButton Function to Tab
         function Tab:CreateButton(buttonConfig)
             local buttonContainer = Create("Frame", {
                 Name = buttonConfig.Title.."Button",
@@ -448,6 +410,7 @@ function Azure:CreateWindow(config)
             return buttonContainer
         end
         
+        -- Add Toggle Creation Function
         function Tab:CreateToggle(toggleConfig)
             local toggleContainer = Create("Frame", {
                 Name = toggleConfig.Title.."Toggle",
@@ -626,6 +589,7 @@ function Azure:CreateWindow(config)
             return toggleContainer
         end
         
+        -- Add Slider Creation Function
         function Tab:CreateSlider(sliderConfig)
             local sliderContainer = Create("Frame", {
                 Name = sliderConfig.Title.."Slider",
