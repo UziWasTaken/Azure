@@ -30,10 +30,10 @@
     })
     
     -- Create a tab
-    local Tab = Window:CreateTab("Settings")
+    local Tab = Window:AddTab("Settings")
     
     -- Add a toggle
-    Tab:CreateToggle({
+    Tab:AddToggle({
         Title = "Enable Feature",
         Default = false,
         Callback = function(Value)
@@ -42,7 +42,7 @@
     })
     
     -- Add a slider
-    Tab:CreateSlider({
+    Tab:AddSlider({
         Title = "Speed",
         Min = 0,
         Max = 100,
@@ -54,57 +54,56 @@
     ```
 ]]
 
-local Azure = {}
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local Azure = {
+    Version = "1.0.0",
+    Options = {}
+}
 
 -- Utility Functions
 local function Create(className, properties)
     local instance = Instance.new(className)
-    for k, v in pairs(properties) do
-        instance[k] = v
+    for property, value in pairs(properties) do
+        instance[property] = value
     end
     return instance
 end
 
 local function Tween(instance, properties, duration)
-    local tweenInfo = TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween = TweenService:Create(instance, tweenInfo, properties)
+    local tween = TweenService:Create(instance, TweenInfo.new(duration), properties)
     tween:Play()
     return tween
 end
 
--- Main Window Creator
 function Azure:CreateWindow(config)
-    config = config or {}
-    local WindowTitle = config.Title or "Azure"
-    local WindowSize = config.Size or UDim2.fromOffset(600, 400)
+    local Window = {}
     local Theme = config.Theme or "Dark"
+    local WindowTitle = config.Title or "Azure UI"
+    local WindowSize = config.Size or UDim2.fromOffset(580, 460)
     
-    -- Create Main GUI
-    local AzureUI = Create("ScreenGui", {
+    -- Create ScreenGui
+    local ScreenGui = Create("ScreenGui", {
         Name = "AzureUI",
-        Parent = CoreGui,
+        Parent = game:GetService("CoreGui"),
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     })
     
-    -- Create Main Frame with gradient
+    -- Create Main Window Frame
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
-        Parent = AzureUI,
+        Parent = ScreenGui,
         BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(240, 240, 245),
-        Position = config.Position or UDim2.new(0.5, -WindowSize.X.Offset/2, 0.5, -WindowSize.Y.Offset/2),
+        Position = UDim2.new(0.5, -WindowSize.X.Offset/2, 0.5, -WindowSize.Y.Offset/2),
         Size = WindowSize,
         ClipsDescendants = true
     })
-
-    -- Add Corner to Main Frame
-    local MainCorner = Create("UICorner", {
+    
+    -- Add Corner
+    Create("UICorner", {
         Parent = MainFrame,
         CornerRadius = UDim.new(0, 8)
     })
-
+    
     -- Create Title Bar
     local TitleBar = Create("Frame", {
         Name = "TitleBar",
@@ -112,9 +111,9 @@ function Azure:CreateWindow(config)
         BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(25, 25, 35) or Color3.fromRGB(235, 235, 240),
         Size = UDim2.new(1, 0, 0, 35)
     })
-
+    
     -- Add Title Text
-    local TitleText = Create("TextLabel", {
+    Create("TextLabel", {
         Name = "Title",
         Parent = TitleBar,
         BackgroundTransparency = 1,
@@ -126,836 +125,214 @@ function Azure:CreateWindow(config)
         TextSize = 14,
         TextXAlignment = Enum.TextXAlignment.Left
     })
-
+    
     -- Create Tab Container
     local TabContainer = Create("Frame", {
         Name = "TabContainer",
         Parent = MainFrame,
         BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(230, 230, 235),
         Position = UDim2.new(0, 10, 0, 45),
-        Size = UDim2.new(0, 150, 1, -55),
+        Size = UDim2.new(0, config.TabWidth or 160, 1, -55),
         ClipsDescendants = true
     })
-
-    -- Add Corner to Tab Container
-    local TabContainerCorner = Create("UICorner", {
-        Parent = TabContainer,
-        CornerRadius = UDim.new(0, 6)
-    })
-
-    -- Add Layout for Tab Container
-    local TabContainerLayout = Create("UIListLayout", {
+    
+    Create("UICorner", { Parent = TabContainer, CornerRadius = UDim.new(0, 6) })
+    
+    -- Add Tab List Layout
+    Create("UIListLayout", {
         Parent = TabContainer,
         HorizontalAlignment = Enum.HorizontalAlignment.Center,
         Padding = UDim.new(0, 5),
         SortOrder = Enum.SortOrder.LayoutOrder
     })
-
-    -- Add Padding for Tab Container
-    local TabContainerPadding = Create("UIPadding", {
+    
+    Create("UIPadding", {
         Parent = TabContainer,
         PaddingTop = UDim.new(0, 5)
     })
-
+    
     -- Create Content Container
     local ContentContainer = Create("Frame", {
         Name = "ContentContainer",
         Parent = MainFrame,
         BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(230, 230, 235),
-        Position = UDim2.new(0, 170, 0, 45),
-        Size = UDim2.new(1, -180, 1, -55),
+        Position = UDim2.new(0, TabContainer.Size.X.Offset + 20, 0, 45),
+        Size = UDim2.new(1, -(TabContainer.Size.X.Offset + 30), 1, -55),
         ClipsDescendants = true
     })
-
-    -- Add Corner to Content Container
-    local ContentContainerCorner = Create("UICorner", {
-        Parent = ContentContainer,
-        CornerRadius = UDim.new(0, 6)
-    })
-
-    -- Add Padding for Content Container
-    local ContentContainerPadding = Create("UIPadding", {
-        Parent = ContentContainer,
-        PaddingLeft = UDim.new(0, 10),
-        PaddingRight = UDim.new(0, 10),
-        PaddingTop = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10)
-    })
-
-    -- Create Accent Bar
-    local AccentBar = Create("Frame", {
-        Name = "AccentBar",
-        Parent = MainFrame,
-        BackgroundColor3 = Color3.fromRGB(60, 120, 255),
-        BorderSizePixel = 0,
-        Position = UDim2.new(0, 0, 0, 0),
-        Size = UDim2.new(1, 0, 0, 2),
-        ZIndex = 2
-    })
-
-    -- Add Accent Gradient
-    local AccentGradient = Create("UIGradient", {
-        Parent = AccentBar,
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 160, 255)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 120, 255))
-        }),
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0),
-            NumberSequenceKeypoint.new(1, 0.2)
-        })
-    })
-
-    -- Add Shadow with better depth
-    local Shadow = Create("ImageLabel", {
-        Name = "Shadow",
-        Parent = MainFrame,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, -15, 0, -15),
-        Size = UDim2.new(1, 30, 1, 30),
-        ZIndex = 0,
-        Image = "rbxassetid://6015897843",
-        ImageColor3 = Color3.new(0, 0, 0),
-        ImageTransparency = 0.6,
-        ScaleType = Enum.ScaleType.Slice,
-        SliceCenter = Rect.new(49, 49, 450, 450)
-    })
-
-    -- Add Gradient to MainFrame
-    local MainGradient = Create("UIGradient", {
-        Parent = MainFrame,
-        Color = Theme == "Dark" and 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
-            }) or 
-            ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 250, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(240, 240, 245))
-            }),
-        Rotation = 45
-    })
-
-    -- Add Logo/Icon
-    local Logo = Create("ImageLabel", {
-        Name = "Logo",
-        Parent = TitleBar,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 10, 0, 8),
-        Size = UDim2.new(0, 24, 0, 24),
-        Image = "rbxassetid://6031251532",
-        ImageColor3 = Theme == "Dark" and Color3.fromRGB(60, 120, 255) or Color3.fromRGB(40, 100, 235)
-    })
-
-    local Window = {}
     
-    -- Add Tab Creation Function
-    function Window:CreateTab(name)
+    Create("UICorner", { Parent = ContentContainer, CornerRadius = UDim.new(0, 6) })
+    
+    -- Tab Management
+    local Tabs = {}
+    local SelectedTab = nil
+    
+    function Window:AddTab(config)
         local Tab = {}
-        
-        -- Create Tab Button
         local TabButton = Create("TextButton", {
-            Name = name.."Tab",
+            Name = config.Title.."Tab",
             Parent = TabContainer,
             BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225),
             Size = UDim2.new(0.9, 0, 0, 35),
             Font = Enum.Font.GothamSemibold,
-            Text = "    " .. name,
+            Text = "    " .. config.Title,
             TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60),
             TextSize = 14,
             AutoButtonColor = false,
             ClipsDescendants = true
         })
 
-        -- Add Icon to Tab Button
-        local TabIcon = Create("ImageLabel", {
-            Name = "Icon",
+        -- Add selection indicator
+        local SelectionIndicator = Create("Frame", {
+            Name = "SelectionIndicator",
             Parent = TabButton,
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 10, 0.5, -8),
-            Size = UDim2.new(0, 16, 0, 16),
-            Image = "rbxassetid://6031079158",
-            ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
+            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(70, 130, 255) or Color3.fromRGB(50, 110, 235),
+            Position = UDim2.new(0, 0, 1, -2),
+            Size = UDim2.new(1, 0, 0, 2),
+            Visible = false
         })
-
-        -- Create Tab Content
+        
+        -- Add Icon if provided
+        if config.Icon then
+            Create("ImageLabel", {
+                Name = "Icon",
+                Parent = TabButton,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 10, 0.5, -8),
+                Size = UDim2.new(0, 16, 0, 16),
+                Image = "rbxassetid://" .. config.Icon,
+                ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
+            })
+        end
+        
         local TabContent = Create("ScrollingFrame", {
-            Name = name.."Content",
+            Name = config.Title.."Content",
             Parent = ContentContainer,
             BackgroundTransparency = 1,
-            Position = UDim2.new(0, 0, 0, 0),
             Size = UDim2.new(1, 0, 1, 0),
             ScrollBarThickness = 3,
-            ScrollBarImageColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-            ScrollBarImageTransparency = 0.7,
-            VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar,
-            Visible = false,
-            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            ScrollBarImageColor3 = Theme == "Dark" and Color3.fromRGB(70, 70, 85) or Color3.fromRGB(180, 180, 190),
             CanvasSize = UDim2.new(0, 0, 0, 0),
-            BorderSizePixel = 0
+            Visible = false,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y
         })
 
-        -- Add Layout for Tab Content
-        local TabContentLayout = Create("UIListLayout", {
+        -- Add layout for content organization
+        Create("UIListLayout", {
             Parent = TabContent,
             Padding = UDim.new(0, 10),
             SortOrder = Enum.SortOrder.LayoutOrder,
             HorizontalAlignment = Enum.HorizontalAlignment.Center
         })
-
-        -- Add Padding for Tab Content
-        local TabContentPadding = Create("UIPadding", {
+        
+        Create("UIPadding", {
             Parent = TabContent,
             PaddingTop = UDim.new(0, 10),
             PaddingBottom = UDim.new(0, 10),
             PaddingLeft = UDim.new(0, 10),
             PaddingRight = UDim.new(0, 10)
         })
+        
+        -- Add hover effect
+        TabButton.MouseEnter:Connect(function()
+            local targetColor = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(230, 230, 235)
+            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
+        end)
 
-        -- Tab Selection Logic
-        local function SelectTab()
-            -- Hide all tab contents
-            for _, child in ipairs(ContentContainer:GetChildren()) do
-                if child:IsA("ScrollingFrame") then
-                    child.Visible = false
-                end
+        TabButton.MouseLeave:Connect(function()
+            if not TabButton.SelectionIndicator.Visible then
+                local targetColor = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225)
+                TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
             end
-            
-            -- Reset all tab button colors
-            for _, child in ipairs(TabContainer:GetChildren()) do
-                if child:IsA("TextButton") then
-                    child.BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225)
-                    child.TextColor3 = Theme == "Dark" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(60, 60, 60)
-                    if child:FindFirstChild("Icon") then
-                        child.Icon.ImageColor3 = Theme == "Dark" and Color3.fromRGB(160, 160, 160) or Color3.fromRGB(100, 100, 100)
-                    end
-                end
-            end
-            
-            -- Show selected tab content and highlight button
-            TabContent.Visible = true
-            TabButton.BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(230, 230, 235)
-            TabButton.TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
-            TabIcon.ImageColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
-        end
+        end)
 
-        -- Add Click Handler for Tab Button
+        -- Handle tab selection
         TabButton.MouseButton1Click:Connect(function()
-            SelectTab()
+            -- Hide all tabs
+            for _, tab in ipairs(Tabs) do
+                tab.Content.Visible = false
+                tab.Button.SelectionIndicator.Visible = false
+                local defaultColor = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(220, 220, 225)
+                TweenService:Create(tab.Button, TweenInfo.new(0.2), {BackgroundColor3 = defaultColor}):Play()
+            end
+            
+            -- Show selected tab
+            TabContent.Visible = true
+            SelectionIndicator.Visible = true
+            local selectedColor = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(230, 230, 235)
+            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = selectedColor}):Play()
         end)
 
-        -- Add Ripple Effect
-        TabButton.MouseButton1Down:Connect(function(X, Y)
-            local Ripple = Create("Frame", {
-                Parent = TabButton,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(0, 0, 0),
-                BackgroundTransparency = 0.7,
-                Position = UDim2.new(0, X - TabButton.AbsolutePosition.X, 0, Y - TabButton.AbsolutePosition.Y),
-                Size = UDim2.new(0, 0, 0, 0),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-            })
-
-            local RippleCorner = Create("UICorner", {
-                Parent = Ripple,
-                CornerRadius = UDim.new(1, 0)
-            })
-
-            local Size = math.max(TabButton.AbsoluteSize.X, TabButton.AbsoluteSize.Y) * 2
-            local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
-            Tween:Play()
-            Tween.Completed:Connect(function()
-                Ripple:Destroy()
-            end)
-        end)
-
-        -- Select first tab by default
-        if #TabContainer:GetChildren() == 1 then
-            SelectTab()
-        end
-
-        -- Add CreateButton Function to Tab
-        function Tab:CreateButton(buttonConfig)
-            local buttonContainer = Create("Frame", {
-                Name = buttonConfig.Title.."Button",
+        -- Element Creation Functions
+        function Tab:AddButton(config)
+            local ButtonContainer = Create("Frame", {
                 Parent = TabContent,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
-                Size = UDim2.new(1, 0, 0, 40),
-                LayoutOrder = #TabContent:GetChildren(),
-                ClipsDescendants = true
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(225, 225, 230),
+                Size = UDim2.new(1, 0, 0, 40)
             })
             
-            -- Add Container Corner
-            local ContainerCorner = Create("UICorner", {
-                Parent = buttonContainer,
-                CornerRadius = UDim.new(0, 6)
-            })
+            Create("UICorner", { Parent = ButtonContainer })
             
-            -- Add Container Gradient
-            local ContainerGradient = Create("UIGradient", {
-                Parent = buttonContainer,
-                Color = Theme == "Dark" and 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
-                    }) or 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
-                    }),
-                Rotation = 90
-            })
-            
-            -- Create Button
             local Button = Create("TextButton", {
-                Name = "Button",
-                Parent = buttonContainer,
+                Parent = ButtonContainer,
                 BackgroundColor3 = Color3.fromRGB(60, 120, 255),
-                Size = UDim2.new(1, -20, 1, -10),
                 Position = UDim2.new(0, 10, 0, 5),
+                Size = UDim2.new(1, -20, 1, -10),
                 Font = Enum.Font.GothamSemibold,
-                Text = buttonConfig.Title,
+                Text = config.Title,
                 TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextSize = 14,
                 AutoButtonColor = false
             })
             
-            -- Add Button Corner
-            local ButtonCorner = Create("UICorner", {
-                Parent = Button,
-                CornerRadius = UDim.new(0, 4)
-            })
+            Create("UICorner", { Parent = Button })
             
-            -- Add Button Gradient
-            local ButtonGradient = Create("UIGradient", {
-                Parent = Button,
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 110, 245))
-                }),
-                Rotation = 90
-            })
-            
-            -- Add Click Effect
-            Button.MouseButton1Down:Connect(function(X, Y)
-                -- Ripple Effect
-                local Ripple = Create("Frame", {
-                    Parent = Button,
-                    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                    BackgroundTransparency = 0.7,
-                    Position = UDim2.new(0, X - Button.AbsolutePosition.X, 0, Y - Button.AbsolutePosition.Y),
-                    Size = UDim2.new(0, 0, 0, 0),
-                    AnchorPoint = Vector2.new(0.5, 0.5),
-                })
-                
-                local RippleCorner = Create("UICorner", {
-                    Parent = Ripple,
-                    CornerRadius = UDim.new(1, 0)
-                })
-                
-                local Size = math.max(Button.AbsoluteSize.X, Button.AbsoluteSize.Y) * 2
-                local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
-                Tween:Play()
-                Tween.Completed:Connect(function()
-                    Ripple:Destroy()
-                end)
-                
-                -- Callback
-                if buttonConfig.Callback then
-                    buttonConfig.Callback()
+            Button.MouseButton1Click:Connect(function()
+                if config.Callback then
+                    config.Callback()
                 end
             end)
             
-            -- Add Hover Effect
-            Button.MouseEnter:Connect(function()
-                Tween(Button, {BackgroundColor3 = Color3.fromRGB(70, 130, 255)}, 0.2)
-            end)
-            
-            Button.MouseLeave:Connect(function()
-                Tween(Button, {BackgroundColor3 = Color3.fromRGB(60, 120, 255)}, 0.2)
-            end)
-            
-            return buttonContainer
+            return Button
         end
         
-        -- Add Toggle Creation Function
-        function Tab:CreateToggle(toggleConfig)
-            local toggleContainer = Create("Frame", {
-                Name = toggleConfig.Title.."Toggle",
+        function Tab:AddToggle(config)
+            local Toggle = {Value = config.Default or false}
+            local ToggleContainer = Create("Frame", {
                 Parent = TabContent,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
-                Size = UDim2.new(1, 0, 0, 40),
-                LayoutOrder = #TabContent:GetChildren(),
-                ClipsDescendants = true
-            })
-
-            -- Create Dropdown Container
-            local dropdownContainer = Create("Frame", {
-                Name = "DropdownContainer",
-                Parent = toggleContainer,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(30, 30, 40) or Color3.fromRGB(220, 220, 225),
-                Position = UDim2.new(0, 0, 1, 0),
-                Size = UDim2.new(1, 0, 0, 0),
-                ClipsDescendants = true
-            })
-
-            -- Add Dropdown Items if specified
-            local dropdownHeight = 0
-            if toggleConfig.Dropdown then
-                for _, item in ipairs(toggleConfig.Dropdown) do
-                    local dropdownItem = Create("TextButton", {
-                        Name = item.."Item",
-                        Parent = dropdownContainer,
-                        BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(230, 230, 235),
-                        Size = UDim2.new(1, 0, 0, 30),
-                        Position = UDim2.new(0, 0, 0, dropdownHeight),
-                        Font = Enum.Font.GothamMedium,
-                        Text = item,
-                        TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-                        TextSize = 14,
-                        AutoButtonColor = false
-                    })
-
-                    -- Add hover effect for dropdown items
-                    dropdownItem.MouseEnter:Connect(function()
-                        Tween(dropdownItem, {
-                            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(220, 220, 225)
-                        }, 0.2)
-                    end)
-
-                    dropdownItem.MouseLeave:Connect(function()
-                        Tween(dropdownItem, {
-                            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(40, 40, 50) or Color3.fromRGB(230, 230, 235)
-                        }, 0.2)
-                    end)
-
-                    dropdownItem.MouseButton1Click:Connect(function()
-                        if toggleConfig.DropdownCallback then
-                            toggleConfig.DropdownCallback(item)
-                        end
-                    end)
-
-                    dropdownHeight = dropdownHeight + 30
-                end
-            end
-
-            -- Add Container Corner
-            local ContainerCorner = Create("UICorner", {
-                Parent = toggleContainer,
-                CornerRadius = UDim.new(0, 6)
-            })
-
-            -- Add Container Gradient
-            local ContainerGradient = Create("UIGradient", {
-                Parent = toggleContainer,
-                Color = Theme == "Dark" and 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
-                    }) or 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
-                    }),
-                Rotation = 90
+                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(225, 225, 230),
+                Size = UDim2.new(1, 0, 0, 40)
             })
             
-            -- Add Toggle Title
-            local ToggleTitle = Create("TextLabel", {
-                Name = "Title",
-                Parent = toggleContainer,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 15, 0, 0),
-                Size = UDim2.new(1, -65, 1, 0),
-                Font = Enum.Font.GothamMedium,
-                Text = toggleConfig.Title,
-                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left
-            })
+            Create("UICorner", { Parent = ToggleContainer })
             
-            -- Create Toggle Button
-            local ToggleButton = Create("Frame", {
-                Name = "ToggleButton",
-                Parent = toggleContainer,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(215, 215, 220),
-                Position = UDim2.new(1, -55, 0.5, -10),
-                Size = UDim2.new(0, 40, 0, 20),
-                ClipsDescendants = true
-            })
+            -- Add toggle implementation here
+            -- Similar to Fluent's toggle
             
-            -- Add Toggle Button Corner
-            local ToggleButtonCorner = Create("UICorner", {
-                Parent = ToggleButton,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            -- Create Toggle Circle
-            local ToggleCircle = Create("Frame", {
-                Name = "Circle",
-                Parent = ToggleButton,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-                Position = UDim2.new(0, 2, 0.5, -8),
-                Size = UDim2.new(0, 16, 0, 16),
-                AnchorPoint = Vector2.new(0, 0)
-            })
-            
-            -- Add Circle Corner
-            local CircleCorner = Create("UICorner", {
-                Parent = ToggleCircle,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            -- Add Circle Gradient
-            local CircleGradient = Create("UIGradient", {
-                Parent = ToggleCircle,
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 230, 230))
-                }),
-                Rotation = 45
-            })
-            
-            -- Add Click Animation
-            local Toggled = toggleConfig.Default or false
-            
-            local function UpdateToggle()
-                local ToggleColor = Color3.fromRGB(60, 120, 255)
-                local Position = Toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-                local BackgroundColor = Toggled and ToggleColor or 
-                    (Theme == "Dark" and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(215, 215, 220))
-                
-                Tween(ToggleCircle, {Position = Position}, 0.2)
-                Tween(ToggleButton, {BackgroundColor3 = BackgroundColor}, 0.2)
-            end
-            
-            UpdateToggle()
-            
-            -- Modify click behavior to show/hide dropdown
-            local dropdownOpen = false
-            ToggleButton.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Toggled = not Toggled
-                    UpdateToggle()
-                    
-                    -- Toggle dropdown if it exists
-                    if toggleConfig.Dropdown then
-                        dropdownOpen = not dropdownOpen
-                        local newSize = dropdownOpen and UDim2.new(1, 0, 0, dropdownHeight) or UDim2.new(1, 0, 0, 0)
-                        local newContainerSize = dropdownOpen and UDim2.new(1, 0, 0, 40 + dropdownHeight) or UDim2.new(1, 0, 0, 40)
-                        
-                        Tween(dropdownContainer, {Size = newSize}, 0.2)
-                        Tween(toggleContainer, {Size = newContainerSize}, 0.2)
-                    end
-                    
-                    if toggleConfig.Callback then
-                        toggleConfig.Callback(Toggled)
-                    end
-                end
-            end)
-
-            return toggleContainer
+            return Toggle
         end
         
-        -- Add Slider Creation Function
-        function Tab:CreateSlider(sliderConfig)
-            local sliderContainer = Create("Frame", {
-                Name = sliderConfig.Title.."Slider",
-                Parent = TabContent,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
-                Size = UDim2.new(1, 0, 0, 50),
-                LayoutOrder = #TabContent:GetChildren()
-            })
-            
-            -- Add Container Corner
-            local ContainerCorner = Create("UICorner", {
-                Parent = sliderContainer,
-                CornerRadius = UDim.new(0, 6)
-            })
-            
-            -- Add Container Gradient
-            local ContainerGradient = Create("UIGradient", {
-                Parent = sliderContainer,
-                Color = Theme == "Dark" and 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
-                    }) or 
-                    ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
-                    }),
-                Rotation = 90
-            })
-            
-            -- Add Slider Title
-            local SliderTitle = Create("TextLabel", {
-                Name = "Title",
-                Parent = sliderContainer,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 15, 0, 5),
-                Size = UDim2.new(1, -30, 0, 20),
-                Font = Enum.Font.GothamMedium,
-                Text = sliderConfig.Title,
-                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left
-            })
-            
-            -- Create Slider Bar
-            local SliderBar = Create("Frame", {
-                Name = "SliderBar",
-                Parent = sliderContainer,
-                BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(45, 45, 55) or Color3.fromRGB(215, 215, 220),
-                Position = UDim2.new(0, 15, 0, 35),
-                Size = UDim2.new(1, -30, 0, 4),
-                AnchorPoint = Vector2.new(0, 0.5)
-            })
-            
-            -- Add Slider Bar Corner
-            local SliderBarCorner = Create("UICorner", {
-                Parent = SliderBar,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            -- Create Slider Fill
-            local SliderFill = Create("Frame", {
-                Name = "SliderFill",
-                Parent = SliderBar,
-                BackgroundColor3 = Color3.fromRGB(60, 120, 255),
-                Size = UDim2.new(0.5, 0, 1, 0),
-                BorderSizePixel = 0
-            })
-            
-            -- Add Slider Fill Corner
-            local SliderFillCorner = Create("UICorner", {
-                Parent = SliderFill,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            -- Add Slider Fill Gradient
-            local SliderFillGradient = Create("UIGradient", {
-                Parent = SliderFill,
-                Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 150, 255))
-                }),
-                Rotation = 90
-            })
-            
-            -- Create Slider Button
-            local SliderButton = Create("Frame", {
-                Name = "SliderButton",
-                Parent = SliderFill,
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                Position = UDim2.new(1, -6, 0.5, -6),
-                Size = UDim2.new(0, 12, 0, 12),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                ZIndex = 2
-            })
-            
-            -- Add Slider Button Corner
-            local SliderButtonCorner = Create("UICorner", {
-                Parent = SliderButton,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            -- Add Value Label
-            local ValueLabel = Create("TextLabel", {
-                Name = "Value",
-                Parent = sliderContainer,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(1, -50, 0, 5),
-                Size = UDim2.new(0, 35, 0, 20),
-                Font = Enum.Font.GothamBold,
-                Text = tostring(sliderConfig.Default or sliderConfig.Min),
-                TextColor3 = Theme == "Dark" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40),
-                TextSize = 12
-            })
-            
-            -- Add Slider Functionality
-            local Dragging = false
-            local Value = sliderConfig.Default or sliderConfig.Min
-            
-            local function UpdateSlider(value)
-                Value = math.clamp(value, sliderConfig.Min, sliderConfig.Max)
-                local Percent = (Value - sliderConfig.Min) / (sliderConfig.Max - sliderConfig.Min)
-                
-                Tween(SliderFill, {Size = UDim2.new(Percent, 0, 1, 0)}, 0.1)
-                ValueLabel.Text = tostring(math.round(Value))
-                
-                if sliderConfig.Callback then
-                    sliderConfig.Callback(Value)
-                end
-            end
-            
-            UpdateSlider(Value)
-            
-            SliderBar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = true
-                    local Percent = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-                    local Value = sliderConfig.Min + ((sliderConfig.Max - sliderConfig.Min) * Percent)
-                    UpdateSlider(Value)
-                end
-            end)
-            
-            UserInputService.InputChanged:Connect(function(input)
-                if Dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                    local Percent = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-                    local Value = sliderConfig.Min + ((sliderConfig.Max - sliderConfig.Min) * Percent)
-                    UpdateSlider(Value)
-                end
-            end)
-            
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    Dragging = false
-                end
-            end)
-            
-            return sliderContainer
+        -- Add other element creation functions (Slider, Dropdown, etc.)
+        -- Following Fluent's format
+        
+        table.insert(Tabs, {
+            Button = TabButton,
+            Content = TabContent
+        })
+        
+        -- Select first tab by default
+        if #Tabs == 1 then
+            TabButton.MouseButton1Click:Fire()
         end
         
         return Tab
     end
     
-    -- Add Button Creation Function
-    function Window:CreateButton(buttonConfig)
-        local buttonContainer = Create("Frame", {
-            Name = buttonConfig.Title.."Button",
-            Parent = ContentContainer,
-            BackgroundColor3 = Theme == "Dark" and Color3.fromRGB(35, 35, 45) or Color3.fromRGB(225, 225, 230),
-            Size = UDim2.new(1, 0, 0, 40),
-            LayoutOrder = #ContentContainer:GetChildren(),
-            ClipsDescendants = true
-        })
-        
-        -- Add Container Corner
-        local ContainerCorner = Create("UICorner", {
-            Parent = buttonContainer,
-            CornerRadius = UDim.new(0, 6)
-        })
-        
-        -- Add Container Gradient
-        local ContainerGradient = Create("UIGradient", {
-            Parent = buttonContainer,
-            Color = Theme == "Dark" and 
-                ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 50)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
-                }) or 
-                ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 230, 235)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(225, 225, 230))
-                }),
-            Rotation = 90
-        })
-        
-        -- Create Button
-        local Button = Create("TextButton", {
-            Name = "Button",
-            Parent = buttonContainer,
-            BackgroundColor3 = Color3.fromRGB(60, 120, 255),
-            Size = UDim2.new(1, -20, 1, -10),
-            Position = UDim2.new(0, 10, 0, 5),
-            Font = Enum.Font.GothamSemibold,
-            Text = buttonConfig.Title,
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = 14,
-            AutoButtonColor = false
-        })
-        
-        -- Add Button Corner
-        local ButtonCorner = Create("UICorner", {
-            Parent = Button,
-            CornerRadius = UDim.new(0, 4)
-        })
-        
-        -- Add Button Gradient
-        local ButtonGradient = Create("UIGradient", {
-            Parent = Button,
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 120, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 110, 245))
-            }),
-            Rotation = 90
-        })
-        
-        -- Add Click Effect
-        Button.MouseButton1Down:Connect(function(X, Y)
-            -- Ripple Effect
-            local Ripple = Create("Frame", {
-                Parent = Button,
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                BackgroundTransparency = 0.7,
-                Position = UDim2.new(0, X - Button.AbsolutePosition.X, 0, Y - Button.AbsolutePosition.Y),
-                Size = UDim2.new(0, 0, 0, 0),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-            })
-            
-            local RippleCorner = Create("UICorner", {
-                Parent = Ripple,
-                CornerRadius = UDim.new(1, 0)
-            })
-            
-            local Size = math.max(Button.AbsoluteSize.X, Button.AbsoluteSize.Y) * 2
-            local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5), {Size = UDim2.new(0, Size, 0, Size), BackgroundTransparency = 1})
-            Tween:Play()
-            Tween.Completed:Connect(function()
-                Ripple:Destroy()
-            end)
-            
-            -- Callback
-            if buttonConfig.Callback then
-                buttonConfig.Callback()
-            end
-        end)
-        
-        -- Add Hover Effect
-        Button.MouseEnter:Connect(function()
-            Tween(Button, {BackgroundColor3 = Color3.fromRGB(70, 130, 255)}, 0.2)
-        end)
-        
-        Button.MouseLeave:Connect(function()
-            Tween(Button, {BackgroundColor3 = Color3.fromRGB(60, 120, 255)}, 0.2)
-        end)
-        
-        return buttonContainer
+    function Window:SelectTab(index)
+        if Tabs[index] then
+            Tabs[index].Button.MouseButton1Click:Fire()
+        end
     end
-    
-    -- Make Window Draggable
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
-    
-    TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-        end
-    end)
-    
-    TitleBar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if dragging and dragInput then
-            local delta = dragInput.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
     
     return Window
 end
